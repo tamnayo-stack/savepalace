@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Table, SquaresFour, Trophy, Copy, Check, Fire } from "@phosphor-icons/react";
+import { Table, SquaresFour, Trophy, Copy, Check, Lightning, Flame } from "@phosphor-icons/react";
 import CouponCard from "@/components/CouponCard";
 import CopyModal from "@/components/CopyModal";
 import type { Coupon } from "@/lib/coupon-types";
@@ -10,123 +10,63 @@ type CouponBoardProps = { coupons: Coupon[] };
 type SortKey = "all" | "expiring" | "big";
 type ViewMode = "table" | "card" | "ranking";
 
-const RANK_BADGE = ["🥇", "🥈", "🥉", "4위", "5위", "6위", "7위", "8위", "9위", "10위"];
+const RANK_LABEL = ["🥇", "🥈", "🥉", "4", "5", "6", "7", "8", "9", "10"];
 
-function dateDiff(dateStr: string): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  target.setHours(0, 0, 0, 0);
-  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+function dateDiff(d: string) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  const x = new Date(d); x.setHours(0,0,0,0);
+  return Math.round((x.getTime() - t.getTime()) / 86400000);
 }
+function extractNum(s: string) { const m = s.match(/[\d.]+/); return m ? parseFloat(m[0]) : 0; }
 
-function extractDiscountNumber(discountAmount: string): number {
-  const m = discountAmount.match(/[\d.]+/);
-  return m ? parseFloat(m[0]) : 0;
-}
-
-/* ── 테이블 행 ── */
-const TableRow = memo(function TableRow({ coupon }: { coupon: Coupon }) {
+/* ── 테이블 행 ─────────────────────────────── */
+const TableRow = memo(function TableRow({ c }: { c: Coupon }) {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [todayClicks, setTodayClicks] = useState<number | null>(null);
-
-  const daysLeft = dateDiff(coupon.expiresAt);
-  const daysUntilStart = coupon.startsAt ? dateDiff(coupon.startsAt) : 0;
-  const notStarted = coupon.startsAt ? daysUntilStart > 0 : false;
-  const isExpiringSoon = !notStarted && daysLeft >= 0 && daysLeft <= 3;
-  const isExpired = daysLeft < 0;
-
-  useEffect(() => {
-    void fetch(`/api/coupon-clicks?code=${encodeURIComponent(coupon.code)}`)
-      .then((r) => r.json())
-      .then((d: { clicks?: number }) => setTodayClicks(d.clicks ?? 0))
-      .catch(() => setTodayClicks(0));
-  }, [coupon.code]);
+  const dl = dateDiff(c.expiresAt);
+  const su = c.startsAt ? dateDiff(c.startsAt) : 0;
+  const notStarted = c.startsAt ? su > 0 : false;
+  const soon = !notStarted && dl >= 0 && dl <= 3;
+  const expired = dl < 0;
 
   const handleCopy = async () => {
-    try { await navigator.clipboard.writeText(coupon.code); }
-    catch {
-      const el = document.createElement("textarea");
-      el.value = coupon.code;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
+    try { await navigator.clipboard.writeText(c.code); } catch {
+      const el = document.createElement("textarea"); el.value = c.code;
+      document.body.appendChild(el); el.select(); document.execCommand("copy"); document.body.removeChild(el);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-    setShowModal(true);
-    if (coupon.url) setTimeout(() => window.open(coupon.url, "_blank", "noopener,noreferrer"), 2000);
-
-    let visitorNumber = 0, visitCount = 0;
-    try {
-      const raw = sessionStorage.getItem("savePalace_visitor");
-      const win = (window as unknown as Record<string, unknown>).__spVisitor as { visitorNumber?: number; visitCount?: number } | undefined;
-      const src = raw ? JSON.parse(raw) as { visitorNumber?: number; visitCount?: number } : win;
-      if (src) { visitorNumber = src.visitorNumber ?? 0; visitCount = src.visitCount ?? 0; }
-    } catch { /* ignore */ }
-
-    fetch("/api/coupon-clicks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: coupon.code, visitorNumber, visitCount }),
-    }).catch(() => {});
+    setCopied(true); setTimeout(() => setCopied(false), 1800); setShowModal(true);
+    if (c.url) setTimeout(() => window.open(c.url, "_blank", "noopener,noreferrer"), 2000);
+    fetch("/api/coupon-clicks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: c.code }) }).catch(() => {});
   };
 
-  const expiryText = notStarted
-    ? `D-${daysUntilStart} 후 시작`
-    : isExpired ? "만료됨"
-    : isExpiringSoon ? (daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`)
-    : `~${coupon.expiresAt.slice(5)}`;
+  const expiryStr = notStarted ? `D-${su} 후` : expired ? "만료" : soon ? `D-${dl}` : `${dl}일`;
 
   return (
     <>
-      {showModal && <CopyModal code={coupon.code} minPurchase={coupon.minPurchase} onClose={() => setShowModal(false)} />}
-      <tr className={isExpired ? "opacity-40" : ""}>
+      {showModal && <CopyModal code={c.code} minPurchase={c.minPurchase} onClose={() => setShowModal(false)} />}
+      <tr className={expired ? "opacity-30" : ""}>
         <td>
-          <div className="flex flex-col gap-0.5">
-            <span className="font-bold text-[var(--text)]">{coupon.event || coupon.code}</span>
-            {coupon.event && <span className="text-[11px] text-[var(--muted)] font-mono">{coupon.code}</span>}
+          <div style={{ borderLeft: "3px solid rgba(255,215,0,0.35)", paddingLeft: "12px" }}>
+            <p className="font-bold text-[13px]" style={{ color: "rgba(240,236,255,0.9)" }}>{c.event || c.code}</p>
+            {c.event && <p className="font-mono text-[11px] mt-0.5" style={{ color: "rgba(255,215,0,0.6)" }}>{c.code}</p>}
           </div>
         </td>
+        <td className="text-center font-black text-[15px] gold-text">{c.discountAmount}</td>
+        <td className="text-center text-[12px]" style={{ color: "rgba(180,140,255,0.6)" }}>{c.minPurchase || "—"}</td>
         <td className="text-center">
-          <span className="font-extrabold text-[var(--brand-color)]">{coupon.discountAmount}</span>
-        </td>
-        <td className="text-center text-[var(--muted)]">{coupon.minPurchase || "-"}</td>
-        <td className="text-center">
-          <span className={[
-            "text-[11px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap",
-            isExpiringSoon ? "bg-[var(--gold-soft)] text-[var(--gold)]" :
-            isExpired ? "bg-red-50 text-red-400" :
-            notStarted ? "bg-blue-50 text-blue-600" :
-            "bg-[var(--bg-sub)] text-[var(--muted)]",
-          ].join(" ")}>
-            {isExpiringSoon && <Fire size={10} className="inline mr-0.5" weight="fill" />}
-            {expiryText}
+          <span className="text-[10px] font-bold px-2 py-1 rounded-full"
+            style={soon ? { background: "rgba(255,71,87,0.15)", color: "#FF4757" }
+              : expired ? { color: "#666" }
+              : notStarted ? { background: "rgba(100,149,237,0.12)", color: "#6495ED" }
+              : { background: "rgba(255,215,0,0.08)", color: "rgba(255,215,0,0.7)" }}>
+            {soon && <Lightning size={9} className="inline mr-0.5" weight="fill" />}{expiryStr}
           </span>
         </td>
-        <td className="text-center">
-          {todayClicks !== null && todayClicks > 0 && (
-            <span className="text-[12px] text-[var(--muted)]">🔥 {todayClicks}회</span>
-          )}
-        </td>
-        <td className="text-right">
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={isExpired}
-            className={[
-              "h-9 px-4 rounded-xl text-[12px] font-extrabold text-white transition-all",
-              "disabled:opacity-40 disabled:cursor-not-allowed",
-              copied ? "bg-emerald-500" : "hover:-translate-y-0.5",
-            ].join(" ")}
-            style={!copied ? {
-              background: "linear-gradient(135deg, var(--brand-color), var(--brand-color-dark))",
-              boxShadow: "0 2px 8px var(--brand-color-glow)",
-            } : undefined}
-          >
-            {copied ? <><Check size={12} className="inline mr-1" />완료</> : <><Copy size={12} className="inline mr-1" />복사</>}
+        <td className="text-right pr-2">
+          <button type="button" onClick={handleCopy} disabled={expired}
+            className={copied ? "btn-copied" : "btn-gold"}
+            style={{ padding: "7px 18px", fontSize: "12px" }}>
+            {copied ? <><Check size={11} className="inline mr-1" weight="bold" />완료</> : <><Copy size={11} className="inline mr-1" weight="bold" />복사</>}
           </button>
         </td>
       </tr>
@@ -134,160 +74,92 @@ const TableRow = memo(function TableRow({ coupon }: { coupon: Coupon }) {
   );
 });
 
-/* ── 랭킹 행 ── */
-const RankRow = memo(function RankRow({ coupon, rank }: { coupon: Coupon; rank: number }) {
+/* ── 랭킹 행 ─────────────────────────────── */
+const RankRow = memo(function RankRow({ c, rank, clicks }: { c: Coupon; rank: number; clicks: number }) {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [todayClicks, setTodayClicks] = useState<number | null>(null);
-
-  useEffect(() => {
-    void fetch(`/api/coupon-clicks?code=${encodeURIComponent(coupon.code)}`)
-      .then((r) => r.json())
-      .then((d: { clicks?: number }) => setTodayClicks(d.clicks ?? 0))
-      .catch(() => setTodayClicks(0));
-  }, [coupon.code]);
-
-  const isExpired = dateDiff(coupon.expiresAt) < 0;
+  const expired = dateDiff(c.expiresAt) < 0;
+  const top3 = rank <= 3;
 
   const handleCopy = async () => {
-    try { await navigator.clipboard.writeText(coupon.code); }
-    catch {
-      const el = document.createElement("textarea");
-      el.value = coupon.code;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
+    try { await navigator.clipboard.writeText(c.code); } catch {
+      const el = document.createElement("textarea"); el.value = c.code;
+      document.body.appendChild(el); el.select(); document.execCommand("copy"); document.body.removeChild(el);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-    setShowModal(true);
-    if (coupon.url) setTimeout(() => window.open(coupon.url, "_blank", "noopener,noreferrer"), 2000);
-
-    let visitorNumber = 0, visitCount = 0;
-    try {
-      const raw = sessionStorage.getItem("savePalace_visitor");
-      const win = (window as unknown as Record<string, unknown>).__spVisitor as { visitorNumber?: number; visitCount?: number } | undefined;
-      const src = raw ? JSON.parse(raw) as { visitorNumber?: number; visitCount?: number } : win;
-      if (src) { visitorNumber = src.visitorNumber ?? 0; visitCount = src.visitCount ?? 0; }
-    } catch { /* ignore */ }
-
-    fetch("/api/coupon-clicks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: coupon.code, visitorNumber, visitCount }),
-    }).catch(() => {});
+    setCopied(true); setTimeout(() => setCopied(false), 1800); setShowModal(true);
+    if (c.url) setTimeout(() => window.open(c.url, "_blank", "noopener,noreferrer"), 2000);
+    fetch("/api/coupon-clicks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: c.code }) }).catch(() => {});
   };
-
-  const isTop3 = rank <= 3;
 
   return (
     <>
-      {showModal && <CopyModal code={coupon.code} minPurchase={coupon.minPurchase} onClose={() => setShowModal(false)} />}
+      {showModal && <CopyModal code={c.code} minPurchase={c.minPurchase} onClose={() => setShowModal(false)} />}
       <div
-        className={[
-          "flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
-          "hover:-translate-y-0.5 hover:shadow-[0_6px_24px_var(--brand-color-glow)]",
-          isTop3
-            ? "border-[var(--gold)] bg-gradient-to-r from-[var(--bg-card)] to-[var(--gold-soft)]"
-            : "border-[var(--line)] bg-[var(--bg-card)]",
-          isExpired ? "opacity-40" : "",
-        ].join(" ")}
+        className={`rank-card ${top3 ? "top3" : ""} ${expired ? "opacity-30" : ""}`}
+        style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: "14px" }}
       >
-        {/* 순위 */}
-        <div className="w-10 shrink-0 text-center">
-          <span className={isTop3 ? "text-xl" : "text-sm font-black text-[var(--muted)]"}>
-            {RANK_BADGE[rank - 1]}
-          </span>
+        {/* 순위 뱃지 */}
+        <div className="shrink-0 w-9 text-center">
+          {top3
+            ? <span style={{ fontSize: "22px" }}>{RANK_LABEL[rank - 1]}</span>
+            : <span className="font-black text-[15px]" style={{ color: "rgba(180,140,255,0.4)" }}>{rank}</span>
+          }
         </div>
 
-        {/* 내용 */}
+        {/* 할인 금액 */}
+        <div className="shrink-0 w-20 text-right">
+          <span className="gold-text font-black text-[18px]">{c.discountAmount}</span>
+        </div>
+
+        {/* 정보 */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-[var(--text)] text-[14px] leading-snug truncate">{coupon.event || coupon.code}</p>
-          <p className="text-[12px] text-[var(--muted)] mt-0.5">
-            <span className="font-extrabold text-[var(--brand-color)]">{coupon.discountAmount}</span>
-            {coupon.minPurchase && <> · {coupon.minPurchase} 이상</>}
-            {todayClicks !== null && todayClicks > 0 && (
-              <span className="ml-2 text-[var(--gold)] font-bold">🔥 {todayClicks}회 사용</span>
-            )}
+          <p className="font-bold text-[13px] truncate" style={{ color: "rgba(240,236,255,0.85)" }}>
+            {c.event || c.code}
+          </p>
+          <p className="text-[11px] mt-0.5" style={{ color: "rgba(180,140,255,0.5)" }}>
+            {c.minPurchase && <>{c.minPurchase} 이상 · </>}
+            {clicks > 0 && <><Flame size={10} className="inline" color="#FF4757" /> {clicks}회 사용</>}
           </p>
         </div>
 
         {/* 복사 버튼 */}
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={isExpired}
-          className={[
-            "shrink-0 h-9 px-4 rounded-xl text-[12px] font-extrabold text-white transition-all",
-            "disabled:opacity-40 disabled:cursor-not-allowed",
-            copied ? "bg-emerald-500" : "hover:-translate-y-0.5",
-          ].join(" ")}
-          style={!copied ? {
-            background: "linear-gradient(135deg, var(--brand-color), var(--brand-color-dark))",
-            boxShadow: "0 2px 8px var(--brand-color-glow)",
-          } : undefined}
-        >
-          {copied ? "✓ 복사됨" : "복사"}
+        <button type="button" onClick={handleCopy} disabled={expired}
+          className={copied ? "btn-copied" : "btn-gold"}
+          style={{ padding: "8px 16px", fontSize: "12px", flexShrink: 0 }}>
+          {copied ? "✓" : "복사"}
         </button>
       </div>
     </>
   );
 });
 
-/* ── 메인 CouponBoard ── */
+/* ── 메인 CouponBoard ─────────────────────── */
 export default function CouponBoard({ coupons }: CouponBoardProps) {
   const [sort, setSort] = useState<SortKey>("all");
   const [view, setView] = useState<ViewMode>("card");
   const [clickMap, setClickMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    void fetch("/api/coupon-clicks")
-      .then((r) => r.json())
-      .then((d: { all?: Record<string, number> }) => {
-        if (d.all) setClickMap(d.all);
-      })
-      .catch(() => {});
+    void fetch("/api/coupon-clicks").then(r => r.json()).then((d: { all?: Record<string, number> }) => {
+      if (d.all) setClickMap(d.all);
+    }).catch(() => {});
   }, []);
 
   const sorted = useMemo(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const valid = coupons.filter((c) => {
-      const exp = new Date(c.expiresAt);
-      exp.setHours(0, 0, 0, 0);
-      return exp >= now;
-    });
-    if (sort === "expiring") {
-      return [...valid].sort((a, b) => dateDiff(a.expiresAt) - dateDiff(b.expiresAt));
-    }
-    if (sort === "big") {
-      return [...valid].sort(
-        (a, b) => extractDiscountNumber(b.discountAmount) - extractDiscountNumber(a.discountAmount),
-      );
-    }
+    const now = new Date(); now.setHours(0,0,0,0);
+    const valid = coupons.filter(c => { const e = new Date(c.expiresAt); e.setHours(0,0,0,0); return e >= now; });
+    if (sort === "expiring") return [...valid].sort((a, b) => dateDiff(a.expiresAt) - dateDiff(b.expiresAt));
+    if (sort === "big") return [...valid].sort((a, b) => extractNum(b.discountAmount) - extractNum(a.discountAmount));
     return valid;
   }, [coupons, sort]);
 
-  const rankingList = useMemo(() => {
-    return [...sorted].sort(
-      (a, b) => (clickMap[b.code] ?? 0) - (clickMap[a.code] ?? 0),
-    );
-  }, [sorted, clickMap]);
-
-  const displayList = view === "ranking" ? rankingList : sorted;
+  const rankingList = useMemo(() =>
+    [...sorted].sort((a, b) => (clickMap[b.code] ?? 0) - (clickMap[a.code] ?? 0)),
+    [sorted, clickMap]
+  );
 
   const SortBtn = useCallback(({ k, label }: { k: SortKey; label: string }) => (
-    <button
-      type="button"
-      onClick={() => setSort(k)}
-      className={[
-        "text-[12px] font-bold px-3 py-1.5 rounded-full transition-all",
-        sort === k
-          ? "bg-[var(--brand-color)] text-white shadow-[0_2px_8px_var(--brand-color-glow)]"
-          : "bg-[var(--bg-sub)] text-[var(--muted)] hover:text-[var(--brand-color)]",
-      ].join(" ")}
-    >
+    <button type="button" onClick={() => setSort(k)} className={`filter-btn ${sort === k ? "active" : ""}`}>
       {label}
     </button>
   ), [sort]);
@@ -295,105 +167,76 @@ export default function CouponBoard({ coupons }: CouponBoardProps) {
   return (
     <div>
       {/* ── 툴바 ── */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        {/* 정렬 */}
-        <div className="flex gap-1.5">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="flex gap-2">
           <SortBtn k="all" label="전체" />
           <SortBtn k="expiring" label="마감임박" />
           <SortBtn k="big" label="할인큰순" />
         </div>
 
-        {/* 뷰 모드 */}
-        <div className="ml-auto flex gap-1 bg-[var(--bg-sub)] p-1 rounded-xl">
-          {([
-            ["table", <Table key="t" size={15} />],
-            ["card", <SquaresFour key="c" size={15} />],
-            ["ranking", <Trophy key="r" size={15} />],
-          ] as [ViewMode, React.ReactNode][]).map(([mode, icon]) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setView(mode)}
-              aria-label={mode}
-              className={[
-                "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
-                view === mode
-                  ? "bg-[var(--brand-color)] text-white shadow-sm"
-                  : "text-[var(--muted)] hover:text-[var(--brand-color)]",
-              ].join(" ")}
-            >
-              {icon}
-            </button>
+        <div className="ml-auto flex gap-1 p-1 rounded-xl" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(180,140,255,0.1)" }}>
+          {([["table", <Table key="t" size={15}/>], ["card", <SquaresFour key="c" size={15}/>], ["ranking", <Trophy key="r" size={15}/>]] as [ViewMode, React.ReactNode][]).map(([m, icon]) => (
+            <button key={m} type="button" onClick={() => setView(m)} className={`view-btn ${view === m ? "active" : ""}`} aria-label={m}>{icon}</button>
           ))}
         </div>
       </div>
 
-      {/* ── 뷰: 카드 ── */}
+      {/* ── 카드 뷰 ── */}
       {view === "card" && (
-        <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2">
-          {displayList.map((coupon) => (
-            <CouponCard
-              key={coupon.notionPageId ?? coupon.id}
-              event={coupon.event}
-              code={coupon.code}
-              minPurchase={coupon.minPurchase}
-              discountAmount={coupon.discountAmount}
-              startsAt={coupon.startsAt}
-              expiresAt={coupon.expiresAt}
-              tip={coupon.tip}
-              url={coupon.url}
-              initialClicks={clickMap[coupon.code]}
-            />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sorted.map(c => (
+            <div key={c.notionPageId ?? c.id} className="animate-fade-up">
+              <CouponCard
+                event={c.event} code={c.code} minPurchase={c.minPurchase}
+                discountAmount={c.discountAmount} startsAt={c.startsAt}
+                expiresAt={c.expiresAt} tip={c.tip} url={c.url}
+                initialClicks={clickMap[c.code]}
+              />
+            </div>
           ))}
         </div>
       )}
 
-      {/* ── 뷰: 테이블 ── */}
+      {/* ── 테이블 뷰 ── */}
       {view === "table" && (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--line)]">
-          <table className="sp-table w-full">
+        <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid rgba(180,140,255,0.12)" }}>
+          <table className="sp-table">
             <thead>
               <tr>
-                <th className="text-left min-w-[180px]">행사/코드</th>
+                <th className="text-left pl-4">행사 / 코드</th>
                 <th className="text-center">할인</th>
                 <th className="text-center">최소구매</th>
-                <th className="text-center">만료일</th>
-                <th className="text-center">사용 현황</th>
-                <th className="text-right pr-4">복사</th>
+                <th className="text-center">만료</th>
+                <th className="text-right pr-2">복사</th>
               </tr>
             </thead>
             <tbody>
-              {displayList.map((coupon) => (
-                <TableRow key={coupon.notionPageId ?? coupon.id} coupon={coupon} />
-              ))}
+              {sorted.map(c => <TableRow key={c.notionPageId ?? c.id} c={c} />)}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* ── 뷰: 랭킹 ── */}
+      {/* ── 랭킹 뷰 ── */}
       {view === "ranking" && (
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Trophy size={18} weight="fill" color="var(--gold)" />
-            <span className="text-[13px] font-bold text-[var(--muted)]">
-              오늘 가장 많이 사용된 쿠폰 순위
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 mb-3">
+            <Trophy size={18} weight="fill" style={{ color: "#FFD700" }} />
+            <span className="text-[13px] font-bold" style={{ color: "rgba(180,140,255,0.6)" }}>
+              오늘 가장 많이 복사된 쿠폰
             </span>
           </div>
-          {rankingList.map((coupon, i) => (
-            <RankRow
-              key={coupon.notionPageId ?? coupon.id}
-              coupon={coupon}
-              rank={i + 1}
-            />
+          {rankingList.map((c, i) => (
+            <RankRow key={c.notionPageId ?? c.id} c={c} rank={i + 1} clicks={clickMap[c.code] ?? 0} />
           ))}
         </div>
       )}
 
-      {displayList.length === 0 && (
-        <div className="text-center py-20 text-[var(--muted)]">
+      {/* ── 빈 상태 ── */}
+      {sorted.length === 0 && (
+        <div className="text-center py-24" style={{ color: "rgba(180,140,255,0.4)" }}>
           <div className="text-5xl mb-4">👑</div>
-          <p className="font-bold text-[16px]">현재 등록된 쿠폰이 없습니다</p>
+          <p className="font-bold text-[16px]">등록된 쿠폰이 없습니다</p>
           <p className="text-[13px] mt-1">곧 새로운 쿠폰이 업데이트됩니다!</p>
         </div>
       )}
