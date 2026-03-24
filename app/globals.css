@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
+/* ── 절약왕궁 Design Tokens ─────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #FAF7FF;
+  --bg-card: #ffffff;
+  --bg-sub: #F3EDFF;
+  --text: #1E1B4B;
+  --muted: #7C6FA0;
+  --line: #E5DEFF;
+  --shadow: rgba(124, 58, 237, 0.08);
+
+  /* Brand — AliExpress (알리) but in royal purple */
+  --brand-color: #7C3AED;
+  --brand-color-dark: #5B21B6;
+  --brand-color-soft: #EDE9FE;
+  --brand-color-glow: rgba(124, 58, 237, 0.22);
+
+  /* Gold accent */
+  --gold: #D97706;
+  --gold-dark: #B45309;
+  --gold-soft: #FEF3C7;
+  --gold-glow: rgba(217, 119, 6, 0.25);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+  --bg: #0D0B1A;
+  --bg-card: #1A1232;
+  --bg-sub: #160D2E;
+  --text: #EDE9FF;
+  --muted: #9B8EC4;
+  --line: #2D2150;
+  --shadow: rgba(167, 139, 250, 0.08);
+
+  --brand-color: #A78BFA;
+  --brand-color-dark: #7C3AED;
+  --brand-color-soft: #1E1A3A;
+  --brand-color-glow: rgba(167, 139, 250, 0.25);
+
+  --gold: #F59E0B;
+  --gold-dark: #D97706;
+  --gold-soft: #1C1500;
+  --gold-glow: rgba(245, 158, 11, 0.25);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  min-height: 100dvh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* 다크모드 깜빡임 방지 */
+html[data-theme] body {
+  transition: none;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+.font-serif-kr {
+  font-family: "Noto Serif KR", "Georgia", serif;
+}
+
+/* ── Coupon Ticket Card ─────────────────────────────────── */
+.coupon-ticket-card {
+  position: relative;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Focus ──────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--brand-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Selection ──────────────────────────────────────────── */
+::selection {
+  background: var(--brand-color-soft);
+  color: var(--brand-color-dark);
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* ── Table ──────────────────────────────────────────────── */
+.sp-table th {
+  background: var(--bg-sub);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sp-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.sp-table tr:hover td {
+  background: var(--brand-color-soft);
+}
+
+.sp-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Gold shimmer effect for premium feel ──────────────── */
+.gold-shimmer {
+  background: linear-gradient(
+    105deg,
+    var(--gold-soft) 0%,
+    #fffbeb 40%,
+    var(--gold-soft) 60%,
+    #fffbeb 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
 }
