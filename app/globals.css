@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════
-   절약왕궁 — Dark Luxury Deal Portal
-   탐나는쿠폰과 완전히 다른 다크 전용 디자인
+   절약왕궁 — Light Luxury Deal Portal
+   밝고 세련된 라이트 럭셔리 테마
 ══════════════════════════════════════════════ */
 
 :root {
-  --bg: #07050F;
-  --bg-card: rgba(18, 10, 38, 0.85);
-  --bg-elevated: rgba(28, 16, 58, 0.9);
-  --bg-hover: rgba(40, 24, 80, 0.95);
+  --bg: #F5F2FF;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #EDE8FF;
+  --bg-hover: #E4DEFF;
 
-  --text: #F0ECFF;
-  --text-dim: #B8AADD;
-  --muted: #7A6A9F;
+  --text: #1A1025;
+  --text-dim: #4A3A6A;
+  --muted: #8A78AA;
 
-  --border: rgba(180, 140, 255, 0.12);
-  --border-bright: rgba(180, 140, 255, 0.28);
+  --border: rgba(120, 80, 200, 0.12);
+  --border-bright: rgba(120, 80, 200, 0.32);
 
-  --gold: #FFD700;
-  --gold-dim: #C9A700;
-  --gold-text: linear-gradient(135deg, #FFD700 0%, #FFA500 60%, #FFD700 100%);
-  --gold-glow: rgba(255, 215, 0, 0.25);
-  --gold-glow-strong: rgba(255, 215, 0, 0.5);
+  --gold: #C8900A;
+  --gold-dim: #A07008;
+  --gold-text: linear-gradient(135deg, #C8900A 0%, #E07800 60%, #C8900A 100%);
+  --gold-glow: rgba(200, 144, 10, 0.2);
+  --gold-glow-strong: rgba(200, 144, 10, 0.4);
 
-  --purple: #A855F7;
-  --purple-dim: #7C3AED;
-  --purple-glow: rgba(168, 85, 247, 0.35);
+  --purple: #7C3AED;
+  --purple-dim: #6D28D9;
+  --purple-glow: rgba(124, 58, 237, 0.2);
 
-  --red-deal: #FF4757;
-  --green-ok: #2ED573;
+  --red-deal: #DC2626;
+  --green-ok: #16A34A;
 }
 
 /* ── Base ──────────────────────────────── */
@@ -39,8 +39,8 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(120, 40, 200, 0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(255, 150, 0, 0.06) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139, 92, 246, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(200, 144, 10, 0.04) 0%, transparent 60%);
   color: var(--text);
   font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
   min-height: 100dvh;
@@ -49,11 +49,11 @@ body {
 /* ── Scrollbar ──────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,0.6); }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.45); }
 
 /* ── Selection ──────────────────────────── */
-::selection { background: rgba(168,85,247,0.4); color: #fff; }
+::selection { background: rgba(124,58,237,0.18); color: #1A1025; }
 
 /* ── Focus ──────────────────────────────── */
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
@@ -72,8 +72,8 @@ body {
   100% { background-position:  200% center; }
 }
 @keyframes borderGlow {
-  0%, 100% { box-shadow: 0 0 8px rgba(255,215,0,0.2); }
-  50%       { box-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.2); }
+  0%, 100% { box-shadow: 0 0 8px rgba(200,144,10,0.15); }
+  50%       { box-shadow: 0 0 20px rgba(200,144,10,0.35), 0 0 40px rgba(200,144,10,0.12); }
 }
 
 .animate-fade-up { animation: fadeSlideUp 0.45s ease both; }
@@ -89,7 +89,7 @@ body {
   background-clip: text;
 }
 .gold-shimmer-text {
-  background: linear-gradient(90deg, #FFD700 0%, #FFF0A0 40%, #FFD700 60%, #FFA500 100%);
+  background: linear-gradient(90deg, #B8730A 0%, #D4900A 35%, #F0A800 50%, #D4900A 65%, #B8730A 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -100,25 +100,25 @@ body {
 /* ── Glass card base ────────────────────── */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(120,80,200,0.06);
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
 }
 .glass-card:hover {
-  border-color: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 8px 40px rgba(255,215,0,0.12), 0 0 0 1px rgba(255,215,0,0.15);
+  border-color: rgba(200,144,10,0.35);
+  box-shadow: 0 8px 32px rgba(200,144,10,0.1), 0 2px 8px rgba(120,80,200,0.07);
   transform: translateY(-3px);
 }
 
 /* ── Deal card – 세로형 프리미엄 카드 ─────── */
 .deal-card {
-  background: linear-gradient(160deg, rgba(28,14,58,0.95) 0%, rgba(18,8,38,0.98) 100%);
+  background: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: 20px;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 2px 12px rgba(120,80,200,0.07), 0 1px 4px rgba(0,0,0,0.04);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   cursor: default;
 }
@@ -126,48 +126,48 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,215,0,0.04) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(200,144,10,0.02) 0%, transparent 50%);
   pointer-events: none;
 }
 .deal-card:hover {
-  border-color: rgba(255,215,0,0.35);
+  border-color: rgba(200,144,10,0.4);
   box-shadow:
-    0 0 0 1px rgba(255,215,0,0.2),
-    0 8px 32px rgba(255,215,0,0.1),
-    0 20px 60px rgba(120,40,200,0.2);
+    0 0 0 1px rgba(200,144,10,0.12),
+    0 8px 32px rgba(200,144,10,0.1),
+    0 20px 48px rgba(120,80,200,0.07);
   transform: translateY(-4px);
 }
 .deal-card.expiring {
-  border-color: rgba(255,71,87,0.4);
-  box-shadow: 0 0 20px rgba(255,71,87,0.1);
+  border-color: rgba(220,38,38,0.3);
+  box-shadow: 0 2px 16px rgba(220,38,38,0.07);
 }
 .deal-card.expiring::before {
-  background: linear-gradient(135deg, rgba(255,71,87,0.05) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(220,38,38,0.02) 0%, transparent 50%);
 }
 .deal-card.not-started {
-  border-color: rgba(100,149,237,0.35);
+  border-color: rgba(100,149,237,0.3);
 }
 .deal-card.expired {
-  opacity: 0.35;
-  filter: grayscale(0.6);
+  opacity: 0.4;
+  filter: grayscale(0.5);
 }
 
 /* 카드 상단 컬러 바 */
 .deal-card-bar {
   height: 3px;
-  background: linear-gradient(90deg, #FFD700, #FF8C00, #A855F7, #FFD700);
+  background: linear-gradient(90deg, #C8900A, #E07800, #7C3AED, #C8900A);
   background-size: 200% 100%;
   animation: shimmerGold 4s linear infinite;
 }
 .deal-card.expiring .deal-card-bar {
-  background: linear-gradient(90deg, #FF4757, #FF6B6B, #FF4757);
+  background: linear-gradient(90deg, #DC2626, #EF4444, #DC2626);
   background-size: 200% 100%;
 }
 .deal-card.not-started .deal-card-bar {
   background: linear-gradient(90deg, #6495ED, #87CEEB, #6495ED);
 }
 
-/* ── Table – 완전히 다른 스타일 ─────────── */
+/* ── Table ─────────────────────────────── */
 .sp-table {
   width: 100%;
   border-collapse: separate;
@@ -184,25 +184,26 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .sp-table tbody tr td {
-  background: var(--bg-card);
+  background: #FFFFFF;
   padding: 16px;
   font-size: 13px;
   color: var(--text-dim);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(120,80,200,0.04);
 }
 .sp-table tbody tr td:first-child {
   border-left: 1px solid var(--border);
   border-radius: 12px 0 0 12px;
-  border-left: 3px solid rgba(255,215,0,0.3);
+  border-left: 3px solid rgba(200,144,10,0.4);
 }
 .sp-table tbody tr td:last-child {
   border-right: 1px solid var(--border);
   border-radius: 0 12px 12px 0;
 }
 .sp-table tbody tr:hover td {
-  background: var(--bg-elevated);
-  border-color: rgba(255,215,0,0.2);
+  background: #FFF9EE;
+  border-color: rgba(200,144,10,0.22);
 }
 .sp-table tbody tr:hover td:first-child {
   border-left-color: var(--gold);
@@ -210,47 +211,48 @@ body {
 
 /* ── Ranking card ───────────────────────── */
 .rank-card {
-  background: var(--bg-card);
+  background: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: 16px;
+  box-shadow: 0 1px 6px rgba(120,80,200,0.06);
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .rank-card:hover {
-  border-color: rgba(255,215,0,0.25);
+  border-color: rgba(200,144,10,0.3);
   transform: translateX(4px);
-  box-shadow: -4px 0 20px rgba(255,215,0,0.1);
+  box-shadow: -4px 0 16px rgba(200,144,10,0.08);
 }
 .rank-card.top3 {
-  background: linear-gradient(135deg, rgba(40,20,70,0.9) 0%, rgba(20,10,40,0.95) 100%);
-  border-color: rgba(255,215,0,0.25);
+  background: linear-gradient(135deg, #FFFBEE 0%, #FFF5D6 100%);
+  border-color: rgba(200,144,10,0.28);
 }
 
 /* ── Buttons ────────────────────────────── */
 .btn-gold {
-  background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
-  color: #0A0510;
+  background: linear-gradient(135deg, #E09800 0%, #C87000 100%);
+  color: #FFFFFF;
   font-weight: 900;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(255,215,0,0.3);
+  box-shadow: 0 4px 14px rgba(200,144,10,0.28);
 }
 .btn-gold:hover:not(:disabled) {
-  box-shadow: 0 6px 24px rgba(255,215,0,0.5);
+  box-shadow: 0 6px 20px rgba(200,144,10,0.42);
   transform: translateY(-1px);
 }
 .btn-gold:active:not(:disabled) { transform: translateY(0); }
 .btn-gold:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .btn-copied {
-  background: linear-gradient(135deg, #2ED573 0%, #17C0A2 100%);
-  color: #0A0510;
+  background: linear-gradient(135deg, #16A34A 0%, #0F9040 100%);
+  color: #FFFFFF;
   font-weight: 900;
   border: none;
   border-radius: 12px;
   cursor: default;
-  box-shadow: 0 4px 16px rgba(46,213,115,0.3);
+  box-shadow: 0 4px 14px rgba(22,163,74,0.22);
 }
 
 /* ── Sort/View 버튼 ─────────────────────── */
@@ -260,15 +262,16 @@ body {
   padding: 7px 16px;
   border-radius: 99px;
   border: 1px solid var(--border);
-  background: transparent;
+  background: #FFFFFF;
   color: var(--muted);
   cursor: pointer;
   transition: all 0.15s;
+  box-shadow: 0 1px 4px rgba(120,80,200,0.06);
 }
 .filter-btn:hover { border-color: var(--border-bright); color: var(--text-dim); }
 .filter-btn.active {
-  background: linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,140,0,0.1) 100%);
-  border-color: rgba(255,215,0,0.45);
+  background: linear-gradient(135deg, rgba(200,144,10,0.1) 0%, rgba(224,120,0,0.07) 100%);
+  border-color: rgba(200,144,10,0.5);
   color: var(--gold);
 }
 
@@ -284,7 +287,7 @@ body {
 }
 .view-btn:hover { color: var(--text-dim); border-color: var(--border); }
 .view-btn.active {
-  background: rgba(255,215,0,0.12);
-  border-color: rgba(255,215,0,0.35);
+  background: rgba(200,144,10,0.1);
+  border-color: rgba(200,144,10,0.4);
   color: var(--gold);
 }

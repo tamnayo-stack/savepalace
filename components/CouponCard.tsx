@@ -98,16 +98,16 @@ const CouponCard = memo(function CouponCard({
         <div className="p-5 flex flex-col gap-4">
           {/* ── 상단: 이벤트명 + 뱃지 ── */}
           <div className="flex items-start justify-between gap-2">
-            <p className="font-bold leading-snug text-[14px]" style={{ color: "rgba(240,236,255,0.9)" }}>
+            <p className="font-bold leading-snug text-[14px]" style={{ color: "rgba(26,16,37,0.88)" }}>
               {event || "알리익스프레스 쿠폰"}
             </p>
             <span
               className="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full whitespace-nowrap"
               style={
-                isExpiringSoon ? { background: "rgba(255,71,87,0.15)", color: "#FF4757", border: "1px solid rgba(255,71,87,0.3)" }
-                : notStarted   ? { background: "rgba(100,149,237,0.12)", color: "#6495ED", border: "1px solid rgba(100,149,237,0.3)" }
-                : isExpired    ? { background: "rgba(150,150,150,0.1)", color: "#888", border: "1px solid rgba(150,150,150,0.2)" }
-                :                { background: "rgba(255,215,0,0.08)", color: "rgba(255,215,0,0.7)", border: "1px solid rgba(255,215,0,0.15)" }
+                isExpiringSoon ? { background: "rgba(220,38,38,0.08)", color: "#DC2626", border: "1px solid rgba(220,38,38,0.22)" }
+                : notStarted   ? { background: "rgba(100,149,237,0.1)", color: "#5580CC", border: "1px solid rgba(100,149,237,0.28)" }
+                : isExpired    ? { background: "rgba(150,150,150,0.08)", color: "#888", border: "1px solid rgba(150,150,150,0.18)" }
+                :                { background: "rgba(200,144,10,0.08)", color: "#C8900A", border: "1px solid rgba(200,144,10,0.22)" }
               }
             >
               {isExpiringSoon && <Lightning size={9} className="inline mr-0.5" weight="fill" />}
@@ -117,7 +117,7 @@ const CouponCard = memo(function CouponCard({
 
           {/* ── 중앙: 할인금액 HERO ── */}
           <div className="text-center py-2">
-            <div className="leading-none" style={{ textShadow: "0 0 30px rgba(255,215,0,0.3)" }}>
+            <div className="leading-none" style={{ textShadow: "0 0 20px rgba(200,144,10,0.15)" }}>
               <span
                 className="gold-shimmer-text font-black"
                 style={{ fontSize: "clamp(42px, 8vw, 64px)" }}
@@ -127,33 +127,33 @@ const CouponCard = memo(function CouponCard({
               {discountUnit && (
                 <span
                   className="font-black ml-1"
-                  style={{ fontSize: "clamp(18px, 3vw, 24px)", color: "rgba(255,215,0,0.7)" }}
+                  style={{ fontSize: "clamp(18px, 3vw, 24px)", color: "#C8900A" }}
                 >
                   {discountUnit}
                 </span>
               )}
             </div>
             {minPurchase && (
-              <p className="text-[11px] mt-1.5 font-medium" style={{ color: "rgba(180,140,255,0.55)" }}>
+              <p className="text-[11px] mt-1.5 font-medium" style={{ color: "rgba(74,58,106,0.6)" }}>
                 {minPurchase} 이상 구매 시
               </p>
             )}
           </div>
 
           {/* ── 구분선 ── */}
-          <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)" }} />
+          <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(200,144,10,0.2), transparent)" }} />
 
           {/* ── 코드 표시 ── */}
           <div
             className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer"
-            style={{ background: "rgba(0,0,0,0.3)", border: "1px dashed rgba(255,215,0,0.2)" }}
+            style={{ background: "rgba(200,144,10,0.05)", border: "1px dashed rgba(200,144,10,0.3)" }}
             onClick={isExpired ? undefined : handleCopy}
             role={isExpired ? undefined : "button"}
             tabIndex={isExpired ? undefined : 0}
           >
             <span
               className="font-mono font-black tracking-[0.15em] text-[15px]"
-              style={{ color: isExpired ? "rgba(255,255,255,0.25)" : "rgba(255,215,0,0.85)" }}
+              style={{ color: isExpired ? "rgba(0,0,0,0.2)" : "#B8730A" }}
             >
               {code}
             </span>
@@ -161,7 +161,7 @@ const CouponCard = memo(function CouponCard({
 
           {/* ── 사용 통계 ── */}
           {todayClicks !== null && todayClicks > 0 && (
-            <p className="text-center text-[11px]" style={{ color: "rgba(180,140,255,0.45)" }}>
+            <p className="text-center text-[11px]" style={{ color: "rgba(74,58,106,0.55)" }}>
               🔥 오늘 {todayClicks}명이 사용했어요
             </p>
           )}
@@ -181,7 +181,7 @@ const CouponCard = memo(function CouponCard({
           </button>
 
           {tip && (
-            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(180,140,255,0.45)", borderLeft: "2px solid rgba(255,215,0,0.2)", paddingLeft: "10px" }}>
+            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(74,58,106,0.55)", borderLeft: "2px solid rgba(200,144,10,0.25)", paddingLeft: "10px" }}>
               {tip}
             </p>
           )}

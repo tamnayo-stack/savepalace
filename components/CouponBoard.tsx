@@ -46,19 +46,19 @@ const TableRow = memo(function TableRow({ c }: { c: Coupon }) {
       {showModal && <CopyModal code={c.code} minPurchase={c.minPurchase} onClose={() => setShowModal(false)} />}
       <tr className={expired ? "opacity-30" : ""}>
         <td>
-          <div style={{ borderLeft: "3px solid rgba(255,215,0,0.35)", paddingLeft: "12px" }}>
-            <p className="font-bold text-[13px]" style={{ color: "rgba(240,236,255,0.9)" }}>{c.event || c.code}</p>
-            {c.event && <p className="font-mono text-[11px] mt-0.5" style={{ color: "rgba(255,215,0,0.6)" }}>{c.code}</p>}
+          <div style={{ borderLeft: "3px solid rgba(200,144,10,0.35)", paddingLeft: "12px" }}>
+            <p className="font-bold text-[13px]" style={{ color: "rgba(26,16,37,0.88)" }}>{c.event || c.code}</p>
+            {c.event && <p className="font-mono text-[11px] mt-0.5" style={{ color: "rgba(180,110,0,0.7)" }}>{c.code}</p>}
           </div>
         </td>
         <td className="text-center font-black text-[15px] gold-text">{c.discountAmount}</td>
-        <td className="text-center text-[12px]" style={{ color: "rgba(180,140,255,0.6)" }}>{c.minPurchase || "—"}</td>
+        <td className="text-center text-[12px]" style={{ color: "rgba(74,58,106,0.6)" }}>{c.minPurchase || "—"}</td>
         <td className="text-center">
           <span className="text-[10px] font-bold px-2 py-1 rounded-full"
-            style={soon ? { background: "rgba(255,71,87,0.15)", color: "#FF4757" }
-              : expired ? { color: "#666" }
-              : notStarted ? { background: "rgba(100,149,237,0.12)", color: "#6495ED" }
-              : { background: "rgba(255,215,0,0.08)", color: "rgba(255,215,0,0.7)" }}>
+            style={soon ? { background: "rgba(220,38,38,0.08)", color: "#DC2626" }
+              : expired ? { color: "#999" }
+              : notStarted ? { background: "rgba(100,149,237,0.1)", color: "#5580CC" }
+              : { background: "rgba(200,144,10,0.08)", color: "#C8900A" }}>
             {soon && <Lightning size={9} className="inline mr-0.5" weight="fill" />}{expiryStr}
           </span>
         </td>
@@ -102,7 +102,7 @@ const RankRow = memo(function RankRow({ c, rank, clicks }: { c: Coupon; rank: nu
         <div className="shrink-0 w-9 text-center">
           {top3
             ? <span style={{ fontSize: "22px" }}>{RANK_LABEL[rank - 1]}</span>
-            : <span className="font-black text-[15px]" style={{ color: "rgba(180,140,255,0.4)" }}>{rank}</span>
+            : <span className="font-black text-[15px]" style={{ color: "rgba(74,58,106,0.4)" }}>{rank}</span>
           }
         </div>
 
@@ -113,12 +113,12 @@ const RankRow = memo(function RankRow({ c, rank, clicks }: { c: Coupon; rank: nu
 
         {/* 정보 */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-[13px] truncate" style={{ color: "rgba(240,236,255,0.85)" }}>
+          <p className="font-bold text-[13px] truncate" style={{ color: "rgba(26,16,37,0.85)" }}>
             {c.event || c.code}
           </p>
-          <p className="text-[11px] mt-0.5" style={{ color: "rgba(180,140,255,0.5)" }}>
+          <p className="text-[11px] mt-0.5" style={{ color: "rgba(74,58,106,0.55)" }}>
             {c.minPurchase && <>{c.minPurchase} 이상 · </>}
-            {clicks > 0 && <><Flame size={10} className="inline" color="#FF4757" /> {clicks}회 사용</>}
+            {clicks > 0 && <><Flame size={10} className="inline" color="#DC2626" /> {clicks}회 사용</>}
           </p>
         </div>
 
@@ -174,7 +174,7 @@ export default function CouponBoard({ coupons }: CouponBoardProps) {
           <SortBtn k="big" label="할인큰순" />
         </div>
 
-        <div className="ml-auto flex gap-1 p-1 rounded-xl" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(180,140,255,0.1)" }}>
+        <div className="ml-auto flex gap-1 p-1 rounded-xl" style={{ background: "rgba(200,144,10,0.05)", border: "1px solid rgba(120,80,200,0.12)" }}>
           {([["table", <Table key="t" size={15}/>], ["card", <SquaresFour key="c" size={15}/>], ["ranking", <Trophy key="r" size={15}/>]] as [ViewMode, React.ReactNode][]).map(([m, icon]) => (
             <button key={m} type="button" onClick={() => setView(m)} className={`view-btn ${view === m ? "active" : ""}`} aria-label={m}>{icon}</button>
           ))}
@@ -199,7 +199,7 @@ export default function CouponBoard({ coupons }: CouponBoardProps) {
 
       {/* ── 테이블 뷰 ── */}
       {view === "table" && (
-        <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid rgba(180,140,255,0.12)" }}>
+        <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid rgba(120,80,200,0.12)" }}>
           <table className="sp-table">
             <thead>
               <tr>
@@ -221,8 +221,8 @@ export default function CouponBoard({ coupons }: CouponBoardProps) {
       {view === "ranking" && (
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2 mb-3">
-            <Trophy size={18} weight="fill" style={{ color: "#FFD700" }} />
-            <span className="text-[13px] font-bold" style={{ color: "rgba(180,140,255,0.6)" }}>
+            <Trophy size={18} weight="fill" style={{ color: "#C8900A" }} />
+            <span className="text-[13px] font-bold" style={{ color: "rgba(74,58,106,0.6)" }}>
               오늘 가장 많이 복사된 쿠폰
             </span>
           </div>
@@ -234,7 +234,7 @@ export default function CouponBoard({ coupons }: CouponBoardProps) {
 
       {/* ── 빈 상태 ── */}
       {sorted.length === 0 && (
-        <div className="text-center py-24" style={{ color: "rgba(180,140,255,0.4)" }}>
+        <div className="text-center py-24" style={{ color: "rgba(74,58,106,0.45)" }}>
           <div className="text-5xl mb-4">👑</div>
           <p className="font-bold text-[16px]">등록된 쿠폰이 없습니다</p>
           <p className="text-[13px] mt-1">곧 새로운 쿠폰이 업데이트됩니다!</p>
